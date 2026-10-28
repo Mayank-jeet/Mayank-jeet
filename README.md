@@ -1,7 +1,7 @@
 <h1 align="center">Hi, I'm Mayank Jeet 👋</h1>
 
 <p align="center">
-  <b>AI / ML Engineer in the making</b> · B.Tech Civil Engineering @ IIT Bhubaneswar (2028)<br>
+  <b>AI / ML Engineer & Data Scientist in the making</b> · B.Tech Civil Engineering @ IIT Bhubaneswar (2028)<br>
   I build applied ML and agentic AI systems, end to end.
 </p>
 
@@ -19,7 +19,7 @@
 - 🤖 I take ideas from model to API to UI to live deployment, using LangGraph, FastAPI, React and PyTorch.
 - 🧩 **600+ DSA problems** solved in C++ on LeetCode and CodeForces.
 - 🏟️ Core Head of Sports Fest at IIT Bhubaneswar, leading a team of organizers.
-- 💼 **Open to** AI Engineer, ML Engineer and SDE (ML) roles.
+- 💼 **Open to** AI Engineer, ML Engineer, Data Scientist and SDE (ML) roles.
 
 ## 🛠️ Featured projects
 
@@ -59,14 +59,7 @@
 
 Solutions: [LeetCode (C++)](https://github.com/Mayank-jeet/leetcode-solutions) · [LeetCode (Python)](https://github.com/Mayank-jeet/leetcode-solutions-python) · [SQL practice](https://github.com/Mayank-jeet/SQL-solutions)
 
-## 📊 GitHub stats
-
-<p align="center">
-  <a href="https://github.com/Mayank-jeet?tab=followers"><img src="https://img.shields.io/github/followers/Mayank-jeet?style=for-the-badge&logo=github&label=Followers&color=7cc4ff" alt="Followers"></a>
-  <a href="https://github.com/Mayank-jeet?tab=repositories"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Fusers%2FMayank-jeet&query=%24.public_repos&style=for-the-badge&logo=github&label=Public%20Repos&color=7cc4ff" alt="Public repos"></a>
-  <img src="https://komarev.com/ghpvc/?username=Mayank-jeet&style=for-the-badge&label=Profile%20Views&color=7cc4ff" alt="Profile views">
-</p>
 
 ## 📫 Let's connect
 
-I'm open to AI / ML engineering roles and interesting projects. The fastest way to reach me is email: **mayankjeet7656@gmail.com**.
+I'm open to AI / ML engineering and data science roles and interesting projects. The fastest way to reach me is email: **mayankjeet7656@gmail.com**.
