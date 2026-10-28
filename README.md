@@ -62,8 +62,9 @@ Solutions: [LeetCode (C++)](https://github.com/Mayank-jeet/leetcode-solutions) �
 ## 📊 GitHub stats
 
 <p align="center">
-  <img height="170" src="https://github-readme-stats.vercel.app/api?username=Mayank-jeet&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub stats">
-  <img height="170" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Mayank-jeet&layout=compact&theme=tokyonight&hide_border=true" alt="Top languages">
+  <a href="https://github.com/Mayank-jeet?tab=followers"><img src="https://img.shields.io/github/followers/Mayank-jeet?style=for-the-badge&logo=github&label=Followers&color=7cc4ff" alt="Followers"></a>
+  <a href="https://github.com/Mayank-jeet?tab=repositories"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Fusers%2FMayank-jeet&query=%24.public_repos&style=for-the-badge&logo=github&label=Public%20Repos&color=7cc4ff" alt="Public repos"></a>
+  <img src="https://komarev.com/ghpvc/?username=Mayank-jeet&style=for-the-badge&label=Profile%20Views&color=7cc4ff" alt="Profile views">
 </p>
 
 ## 📫 Let's connect
