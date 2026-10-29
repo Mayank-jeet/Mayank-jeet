@@ -1,7 +1,7 @@
-<h1 align="center">Hi, I'm Mayank Jeet 👋</h1>
+<h1 align="center">Hi, I'm Mayank Jeet</h1>
 
 <p align="center">
-  <b>AI / ML Engineer & Data Scientist in the making</b> · B.Tech Civil Engineering @ IIT Bhubaneswar (2028)<br>
+  <b>AI / ML Engineer & Data Scientist</b> · B.Tech Civil Engineering @ IIT Bhubaneswar (2028)<br>
   I build applied ML and agentic AI systems, end to end.
 </p>
 
