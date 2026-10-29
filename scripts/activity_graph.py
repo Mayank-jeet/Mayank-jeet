@@ -1,5 +1,9 @@
-"""Generate assets/activity-graph.svg: a pink line chart of the last 31 days of
-GitHub contributions. Uses only the standard library.
+"""Generate assets/activity-graph.svg: a dark-and-light-metal chart of the last 31 days
+of GitHub contributions (metal bars, chrome trend line, glossy pink data orbs).
+
+Role in the architecture: run by the Actions workflow every 6 hours; it imports the
+shared look from metal.py so the graph matches the hero, banners and icons.
+Standard library only.
 
 Env vars:
   GH_TOKEN  token for the GitHub GraphQL API (Actions provides GITHUB_TOKEN)
@@ -10,8 +14,11 @@ import json
 import os
 import random
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
+
+import metal
 
 USER = os.environ.get("GH_USER", "Mayank-jeet")
 DAYS = 31
@@ -45,10 +52,14 @@ def fetch_days():
     req = urllib.request.Request(
         "https://api.github.com/graphql",
         data=payload,
-        headers={"Authorization": f"bearer {token}", "Content-Type": "application/json"},
+        headers={"Authorization": f"bearer {token}", "Content-Type": "application/json",
+                 "User-Agent": "activity-graph-script"},
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        data = json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.load(resp)
+    except urllib.error.HTTPError as e:  # surface the API's own message in the Actions log
+        raise SystemExit(f"GitHub API HTTP {e.code}: {e.read().decode(errors='replace')}")
     if "errors" in data or not data.get("data", {}).get("user"):
         raise SystemExit(f"GraphQL error: {data}")
     weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
@@ -66,17 +77,19 @@ def demo_days():
 
 
 def render(days):
-    W, H = 900, 340
-    L, R, T, B = 60, 30, 70, 55
+    W, H = 900, 360
+    L, R, T, B = 64, 34, 86, 58
     pw, ph = W - L - R, H - T - B
     counts = [d["contributionCount"] for d in days]
     ymax = max(4, max(counts))
     if ymax % 4:
         ymax += 4 - ymax % 4
     n = len(days)
+    step = pw / (n - 1)
+    total = sum(counts)
 
     def x(i):
-        return L + pw * i / (n - 1)
+        return L + step * i
 
     def y(v):
         return T + ph - ph * v / ymax
@@ -84,40 +97,48 @@ def render(days):
     pts = [(x(i), y(c)) for i, c in enumerate(counts)]
     line = " ".join(f"{px:.1f},{py:.1f}" for px, py in pts)
     area = f"{L},{T + ph} " + line + f" {x(n - 1):.1f},{T + ph}"
-    total = sum(counts)
 
     grid = []
     for k in range(5):
         v = ymax * k / 4
         gy = y(v)
-        grid.append(f'<line x1="{L}" y1="{gy:.1f}" x2="{W - R}" y2="{gy:.1f}" stroke="#FF69B4" stroke-opacity="0.15"/>')
-        grid.append(f'<text x="{L - 10}" y="{gy + 4:.1f}" text-anchor="end" fill="#FF69B4" font-size="11">{int(v)}</text>')
-    xlabels = []
-    for i, d in enumerate(days):
-        day = d["date"][8:10].lstrip("0") or "0"
-        xlabels.append(f'<text x="{x(i):.1f}" y="{T + ph + 20}" text-anchor="middle" fill="#FF69B4" font-size="11">{day}</text>')
+        grid.append(f'<line x1="{L}" y1="{gy:.1f}" x2="{W - R}" y2="{gy:.1f}" stroke="#8d96a3" stroke-opacity="0.22" stroke-dasharray="4 5"/>')
+        grid.append(f'<text x="{L - 12}" y="{gy + 4:.1f}" text-anchor="end" fill="#aab2be" font-size="11">{int(v)}</text>')
+
+    # metal bars: one per day with activity (skipped for zero so nothing renders at height 0)
+    bw = step * 0.5
+    bars = "".join(
+        f'<rect x="{px - bw / 2:.1f}" y="{py:.1f}" width="{bw:.1f}" height="{T + ph - py:.1f}" rx="2" fill="url(#m-wall)" opacity="0.9"/>'
+        for (px, py), c in zip(pts, counts) if c > 0
+    )
+    xlabels = "".join(
+        f'<text x="{x(i):.1f}" y="{T + ph + 20}" text-anchor="middle" fill="#aab2be" font-size="10">{d["date"][8:10].lstrip("0") or "0"}</text>'
+        for i, d in enumerate(days)
+    )
+    # solid-colour line (a gradient on a flat line has a zero-height box and would vanish)
+    trend = (f'<polyline points="{line}" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 3)"/>'
+             f'<polyline points="{line}" fill="none" stroke="#e6ebf2" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>')
+    orbs = "".join(
+        f'<circle cx="{px:.1f}" cy="{py:.1f}" r="5.5" fill="url(#m-orb-pink)" filter="url(#m-shadow)"/>'
+        for px, py in pts
+    )
     first = datetime.fromisoformat(days[0]["date"]).strftime("%b %d")
     last = datetime.fromisoformat(days[-1]["date"]).strftime("%b %d")
-    dots = "".join(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3.5" fill="#FFFFFF" stroke="#FF69B4" stroke-width="2"/>' for px, py in pts)
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="Segoe UI, Ubuntu, Helvetica, Arial, sans-serif">
-  <defs>
-    <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FF69B4" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#FF69B4" stop-opacity="0.02"/>
-    </linearGradient>
-  </defs>
-  <rect width="{W}" height="{H}" rx="10" fill="#0D1117" stroke="#FF69B4" stroke-opacity="0.25"/>
-  <text x="{W / 2}" y="32" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="600">Contribution Graph</text>
-  <text x="{W / 2}" y="52" text-anchor="middle" fill="#9E9E9E" font-size="12">{first} - {last} · {total} contributions in the last {n} days</text>
-  {''.join(grid)}
-  <polygon points="{area}" fill="url(#fill)"/>
-  <polyline points="{line}" fill="none" stroke="#FF69B4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-  {dots}
-  {''.join(xlabels)}
-  <text x="{W / 2}" y="{H - 8}" text-anchor="middle" fill="#9E9E9E" font-size="11">Days</text>
-</svg>
-"""
+    body = (
+        metal.plate(W, H, 16)
+        + metal.badge(44, 40, 20, "commit")
+        + metal.embossed_text(78, 48, "Contribution Graph", 26, spacing=1)
+        + f'<text x="78" y="68" fill="#aab2be" font-size="12" font-family="Segoe UI, Helvetica, Arial, sans-serif">{first} - {last} · {total} contributions in the last {n} days</text>'
+        + "".join(grid)
+        + bars
+        + f'<polygon points="{area}" fill="url(#m-area)"/>'
+        + trend
+        + orbs
+        + f'<g font-family="Segoe UI, Helvetica, Arial, sans-serif">{xlabels}</g>'
+        + f'<text x="{W / 2}" y="{H - 14}" text-anchor="middle" fill="#8d96a3" font-size="11" font-family="Segoe UI, Helvetica, Arial, sans-serif">Day of month</text>'
+    )
+    return metal.svg(W, H, body, "Contribution graph")
 
 
 def main():
