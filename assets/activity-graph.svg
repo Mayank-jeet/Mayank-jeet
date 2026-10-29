@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="340" viewBox="0 0 900 340" font-family="Segoe UI, Ubuntu, Helvetica, Arial, sans-serif">
+  <rect width="900" height="340" rx="10" fill="#0D1117" stroke="#FF69B4" stroke-opacity="0.25"/>
+  <text x="450" y="160" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="600">Contribution Graph</text>
+  <text x="450" y="190" text-anchor="middle" fill="#9E9E9E" font-size="13">Generating... this updates automatically every 6 hours.</text>
+</svg>
