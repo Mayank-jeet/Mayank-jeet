@@ -3,24 +3,28 @@
 </p>
 
 <p align="center">
-  <a href="https://mayank-jeet.vercel.app"><img src="https://img.shields.io/badge/Portfolio-mayank--jeet.vercel.app-24292f?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"></a>
+  <a href="https://mayank-jeet.vercel.app"><img src="https://img.shields.io/badge/Portfolio-MAYANK%20JEET-212830?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio - Mayank Jeet"></a>
 </p>
+
+## Stats
 
 <p align="center">
   <img src="assets/dashboard.svg" width="100%" alt="Stats: streaks, contributions and monthly activity">
 </p>
 
+## Contribution
+
 <p align="center">
   <img src="assets/heatmap.svg" width="100%" alt="Contribution heatmap for the last year">
 </p>
+
+## About
 
 <p align="center">
   <img src="assets/about.svg" width="100%" alt="About me">
 </p>
 
-<p align="center">
-  <img src="assets/headers/stack.svg" width="100%" alt="Stack">
-</p>
+## Stack
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=py,cpp,c,js,mysql,pytorch,tensorflow,fastapi,react,docker,git,github,vercel,vscode&perline=14" alt="Tech stack icons">
@@ -30,9 +34,7 @@
   <sub><b>Also:</b> Pandas · NumPy · Keras · ONNX · LangChain · LangGraph · RAG · FAISS · OpenAI · Anthropic · Gemini · Playwright · Streamlit · Matplotlib · Seaborn · Render · Jupyter · Google Colab</sub>
 </p>
 
-<p align="center">
-  <img src="assets/headers/projects.svg" width="100%" alt="Projects">
-</p>
+## Projects
 
 <p align="center">
   <a href="https://opspilot-mocha-xi.vercel.app"><img src="assets/cards/opspilot.svg" width="32%" alt="OpsPilot - live demo"></a>
@@ -44,6 +46,8 @@
   <sub>Source code: <a href="https://github.com/Mayank-jeet/opspilot">OpsPilot</a> · <a href="https://github.com/Mayank-jeet/blog-rag-app">BlogGEN</a> · <a href="https://github.com/Mayank-jeet/anomaly-inspect">Anomaly-Inspect</a></sub>
 </p>
 
+## Problem solving
+
 <p align="center">
   <img src="assets/problem.svg" width="100%" alt="Problem solving: LeetCode m_j_bhardwaj, CodeForces Mayank_Jeet, 600+ solved">
 </p>
@@ -53,9 +57,7 @@
   <a href="https://github.com/Mayank-jeet/leetcode-solutions">LeetCode (C++)</a> · <a href="https://github.com/Mayank-jeet/leetcode-solutions-python">LeetCode (Python)</a> · <a href="https://github.com/Mayank-jeet/SQL-solutions">SQL practice</a>
 </p>
 
-<p align="center">
-  <img src="assets/headers/connect.svg" width="100%" alt="Connect">
-</p>
+## Connect
 
 <p align="center">
   <a href="https://www.linkedin.com/in/mayank-jeet-211583364"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
