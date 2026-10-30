@@ -1,5 +1,5 @@
-"""Generate the static terminal-style cards: hero, about, stack, problem-solving,
-section title bars, footer and the three project cards (with screenshots embedded).
+"""Generate the static terminal-style cards: hero, about, problem-solving, section
+title bars, footer and the three project cards (with screenshots embedded).
 
 Run:  python scripts/build_assets.py      (re-run after adding/changing a screenshot)
 Role in the architecture: README.md only references the SVGs written here; the
@@ -9,7 +9,7 @@ import base64
 import os
 import re
 
-from theme import (BG, BODY, BTN, CW, DIM, GLYPHS, GREEN, LINE, TXT, chips, esc, stat_card, svg, window, wrap)
+from theme import (BG, BODY, BTN, CW, DIM, GLYPH, GLYPHS, GREEN, LABEL, LINE, TXT, chips, esc, stat_card, svg, window, wrap)
 
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
 SHOTS = os.path.join(ASSETS, "projects")
@@ -37,14 +37,14 @@ def cursor(x, y, h=30, w=14):
             '<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.5;0.5;1" dur="1.1s" repeatCount="indefinite"/></rect>')
 
 
-def hero(w=900, h=210):
+def hero(w=900, h=190):
+    """Card 1: name and role only, no heading text in the title bar."""
     name = "Mayank Jeet"
     cx = 32 + len(name) * 46 * CW + 8
-    body = (f'<text x="32" y="64" font-size="14" fill="{GREEN}">$ whoami</text>'
-            f'<text x="32" y="112" font-size="46" font-weight="700" fill="{TXT}">{name}</text>' + cursor(cx, 80, 38, 16)
-            + f'<text x="32" y="146" font-size="19" font-weight="700" fill="{GREEN}">AI / ML Engineer  ·  Data Scientist</text>'
-            f'<text x="32" y="172" font-size="13" fill="{BODY}">B.Tech Civil Engineering @ IIT Bhubaneswar (2028). I build applied ML and agentic AI systems, end to end.</text>')
-    return svg(w, h, window(w, h, "github ~ $ whoami", body, "Mayank-jeet"), "Mayank Jeet")
+    body = (f'<text x="32" y="92" font-size="46" font-weight="700" fill="{TXT}">{name}</text>' + cursor(cx, 58, 38, 16)
+            + f'<text x="32" y="128" font-size="19" font-weight="700" fill="{GREEN}">AI / ML Engineer  ·  Data Scientist</text>'
+            f'<text x="32" y="156" font-size="13" fill="{BODY}">B.Tech Civil Engineering @ IIT Bhubaneswar (2028). I build applied ML and agentic AI systems, end to end.</text>')
+    return svg(w, h, window(w, h, "", body), "Mayank Jeet")
 
 
 def segs(text, x, y, size=13):
@@ -55,7 +55,7 @@ def segs(text, x, y, size=13):
 
 
 def glyph(name, x, y, s=0.85):
-    return (f'<g transform="translate({x} {y}) scale({s})" fill="none" stroke="{GREEN}" stroke-width="2" '
+    return (f'<g transform="translate({x} {y}) scale({s})" fill="none" stroke="{GLYPH}" stroke-width="2" '
             f'stroke-linecap="round" stroke-linejoin="round">{GLYPHS[name]}</g>')
 
 
@@ -67,29 +67,12 @@ def about(w=900):
         ("trophy", "Core Head of Sports Fest at IIT Bhubaneswar, leading a team of organizers."),
         ("briefcase", "**Open to** AI Engineer, ML Engineer, Data Scientist and SDE (ML) roles."),
     ]
-    h = 78 + len(rows) * 36
-    body = f'<text x="24" y="58" font-size="13" fill="{GREEN}">$ cat about.md</text>'
+    h = 52 + len(rows) * 36 + 12
+    body = ""
     for i, (g, t) in enumerate(rows):
-        y = 94 + i * 36
+        y = 66 + i * 36
         body += glyph(g, 24, y - 15) + segs(t, 58, y)
-    return svg(w, h, window(w, h, "~/about $ cat about.md", body), "About me")
-
-
-def stack(w=900):
-    groups = [
-        ("languages", ["Python", "C++", "C", "JavaScript", "MySQL"]),
-        ("ml / data", ["PyTorch", "TensorFlow", "Keras", "ONNX", "FAISS", "Pandas", "NumPy", "Matplotlib", "Seaborn"]),
-        ("llm / agents", ["LangChain", "LangGraph", "RAG", "OpenAI", "Anthropic", "Gemini", "Playwright"]),
-        ("web / api", ["FastAPI", "React", "Streamlit"]),
-        ("tools", ["Docker", "Git", "GitHub", "Vercel", "Render", "VS Code", "Jupyter", "Google Colab"]),
-    ]
-    body, y = "", 52
-    for label, items in groups:
-        c, bottom = chips(items, 150, y, w - 24)
-        body += f'<text x="24" y="{y + 15}" font-size="12" fill="{DIM}">{label}</text>' + c
-        y = bottom + 14
-    h = y + 6
-    return svg(w, h, window(w, h, "~/stack $ ls", body), "Tech stack")
+    return svg(w, h, window(w, h, "About", body), "About me")
 
 
 def problem(w=900):
@@ -99,17 +82,18 @@ def problem(w=900):
     body = ""
     for i, (lab, val) in enumerate(cards):
         body += stat_card(m + i * (cw + g), 46, cw, 60, lab, val)
-    return svg(w, h, window(w, h, "~/problem-solving $ stats", body), "Problem solving")
+    return svg(w, h, window(w, h, "Problem solving", body), "Problem solving")
 
 
-def strip(title, name):
-    return svg(900, 34, window(900, 34, title), name)
+def strip(title):
+    """Slim title bar used above content that must stay clickable (icons, badges, cards)."""
+    return svg(900, 34, window(900, 34, title), title)
 
 
 def footer():
     t = '$ git commit -m "see you in the next commit"'
     cx = 8 + len(t) * 14 * CW + 6
-    body = f'<text x="8" y="26" font-size="14" fill="{GREEN}">{esc(t)}</text>' + cursor(cx, 12, 18, 9)
+    body = f'<text x="8" y="26" font-size="14" fill="{LABEL}">{esc(t)}</text>' + cursor(cx, 12, 18, 9)
     return svg(900, 40, body, "Footer")
 
 
@@ -129,19 +113,17 @@ def card(slug, title, desc, stack_items, w=290, h=352):
         img = (f'<image x="10" y="10" width="{iw}" height="{ih}" preserveAspectRatio="xMidYMid slice" '
                f'clip-path="url(#c-{slug})" href="{data}" xlink:href="{data}"/>')
     else:
-        img = (f'<rect x="10" y="10" width="{iw}" height="{ih}" rx="4" fill="url(#g-{slug})"/>'
-               f'<text x="{w/2}" y="{10 + ih/2 - 4}" text-anchor="middle" font-size="12" fill="{GREEN}">add screenshot:</text>'
+        img = (f'<rect x="10" y="10" width="{iw}" height="{ih}" rx="4" fill="#141417"/>'
+               f'<text x="{w/2}" y="{10 + ih/2 - 4}" text-anchor="middle" font-size="12" fill="{LABEL}">add screenshot:</text>'
                f'<text x="{w/2}" y="{10 + ih/2 + 14}" text-anchor="middle" font-size="11" fill="{DIM}">assets/projects/{slug}.png</text>')
     lines = wrap(desc, 36)[:3]
     d = "".join(f'<text x="14" y="{208 + i*16}" font-size="11.5" fill="{BODY}">{esc(l)}</text>' for i, l in enumerate(lines))
     c, _ = chips(stack_items, 14, 258, w - 10, size=10, h=20, gap=6)
     by = h - 10 - 30
-    defs = (f'<defs><clipPath id="c-{slug}"><rect x="10" y="10" width="{iw}" height="{ih}" rx="4"/></clipPath>'
-            f'<linearGradient id="g-{slug}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10281a"/><stop offset="1" stop-color="{BG}"/></linearGradient></defs>')
+    defs = f'<defs><clipPath id="c-{slug}"><rect x="10" y="10" width="{iw}" height="{ih}" rx="4"/></clipPath></defs>'
     body = (defs + f'<rect x="0.5" y="0.5" width="{w-1}" height="{h-1}" rx="6" fill="{BG}" stroke="{LINE}"/>' + img
             + f'<rect x="10" y="10" width="{iw}" height="{ih}" rx="4" fill="none" stroke="{LINE}"/>'
-            + f'<rect x="14" y="177" width="6" height="6" fill="{GREEN}"/>'
-            + f'<text x="26" y="184" font-size="15" font-weight="700" fill="{TXT}">{esc(title)}</text>' + d + c
+            + f'<text x="14" y="184" font-size="15" font-weight="700" fill="{TXT}">{esc(title)}</text>' + d + c
             + f'<rect x="10" y="{by}" width="{iw}" height="30" rx="4" fill="{BTN}"/>'
             f'<text x="{w/2}" y="{by + 20}" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff">Live  ↗</text>')
     return svg(w, h, body, title)
@@ -150,10 +132,10 @@ def card(slug, title, desc, stack_items, w=290, h=352):
 def main():
     write("hero.svg", hero())
     write("about.svg", about())
-    write("stack.svg", stack())
     write("problem.svg", problem())
-    write("headers/projects.svg", strip("~/projects $ ls featured/", "Featured projects"))
-    write("headers/connect.svg", strip("~/connect $ ping --me", "Let's connect"))
+    write("headers/stack.svg", strip("Stack"))
+    write("headers/projects.svg", strip("Projects"))
+    write("headers/connect.svg", strip("Connect"))
     write("footer.svg", footer())
     for slug, title, desc, st in PROJECTS:
         write(f"cards/{slug}.svg", card(slug, title, desc, st))

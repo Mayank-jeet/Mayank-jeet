@@ -3,13 +3,11 @@
 </p>
 
 <p align="center">
-  <a href="https://mayank-jeet.vercel.app"><img src="https://img.shields.io/badge/Portfolio-mayank--jeet.vercel.app-238636?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"></a>
-  <a href="https://www.linkedin.com/in/mayank-jeet-211583364"><img src="https://img.shields.io/badge/LinkedIn-Connect-238636?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="mailto:mayankjeet7656@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20hi-238636?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
+  <a href="https://mayank-jeet.vercel.app"><img src="https://img.shields.io/badge/Portfolio-mayank--jeet.vercel.app-24292f?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"></a>
 </p>
 
 <p align="center">
-  <img src="assets/dashboard.svg" width="100%" alt="GitHub stats dashboard: streaks, contributions and monthly activity">
+  <img src="assets/dashboard.svg" width="100%" alt="Stats: streaks, contributions and monthly activity">
 </p>
 
 <p align="center">
@@ -21,11 +19,19 @@
 </p>
 
 <p align="center">
-  <img src="assets/stack.svg" width="100%" alt="Tech stack">
+  <img src="assets/headers/stack.svg" width="100%" alt="Stack">
 </p>
 
 <p align="center">
-  <img src="assets/headers/projects.svg" width="100%" alt="Featured projects">
+  <img src="https://skillicons.dev/icons?i=py,cpp,c,js,mysql,pytorch,tensorflow,fastapi,react,docker,git,github,vercel,vscode&perline=14" alt="Tech stack icons">
+</p>
+
+<p align="center">
+  <sub><b>Also:</b> Pandas · NumPy · Keras · ONNX · LangChain · LangGraph · RAG · FAISS · OpenAI · Anthropic · Gemini · Playwright · Streamlit · Matplotlib · Seaborn · Render · Jupyter · Google Colab</sub>
+</p>
+
+<p align="center">
+  <img src="assets/headers/projects.svg" width="100%" alt="Projects">
 </p>
 
 <p align="center">
@@ -48,14 +54,12 @@
 </p>
 
 <p align="center">
-  <img src="assets/headers/connect.svg" width="100%" alt="Let's connect">
+  <img src="assets/headers/connect.svg" width="100%" alt="Connect">
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/mayank-jeet-211583364"><img src="https://img.shields.io/badge/LinkedIn-238636?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-  <a href="mailto:mayankjeet7656@gmail.com"><img src="https://img.shields.io/badge/Email-238636?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
-  <a href="https://leetcode.com/u/m_j_bhardwaj"><img src="https://img.shields.io/badge/LeetCode-238636?style=for-the-badge&logo=leetcode&logoColor=white" alt="LeetCode"></a>
-  <a href="https://codeforces.com/profile/Mayank_Jeet"><img src="https://img.shields.io/badge/CodeForces-238636?style=for-the-badge&logo=codeforces&logoColor=white" alt="CodeForces"></a>
+  <a href="https://www.linkedin.com/in/mayank-jeet-211583364"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+  <a href="mailto:mayankjeet7656@gmail.com"><img src="https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
 </p>
 
 <p align="center">

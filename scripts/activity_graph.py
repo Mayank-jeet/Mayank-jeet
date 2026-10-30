@@ -22,7 +22,7 @@ import sys
 import urllib.request
 from datetime import date, datetime, timedelta, timezone
 
-from theme import CARD, DIM, GREEN, LEVELS, LINE, TXT, stat_card, svg, window
+from theme import CARD, DIM, LABEL, LEVELS, LINE, TXT, stat_card, svg, window
 
 USER = os.environ.get("GH_USER", "Mayank-jeet")
 ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
@@ -138,8 +138,8 @@ def dashboard(s, W=900, H=420):
     cw, ch = (W - 2 * m - 2 * g) / 3, 80
     rng = lambda a, b: f"{fmt(a)} - {fmt(b)}" if a else "no active streak"
     cards = [
-        ("current streak", str(s["cur"][0]), "days", rng(s["cur"][1], s["cur"][2])),
-        ("longest streak", str(s["longest"][0]), "days", rng(s["longest"][1], s["longest"][2])),
+        ("current streak", str(s["cur"][0]), "days", rng(s["cur"][1], s["cur"][2]), True),
+        ("longest streak", str(s["longest"][0]), "days", rng(s["longest"][1], s["longest"][2]), True),
         ("contributions", f"{s['total']:,}", "", "in the last year"),
         ("active days", str(s["active"]), f"/ {s['span']}", f"{100 * s['active'] / s['span']:.0f}% of the year"),
         ("best day", str(s["best"]["n"]), "", fmt(s["best"]["date"])),
@@ -152,7 +152,7 @@ def dashboard(s, W=900, H=420):
     cy = 46 + 2 * (ch + g)
     chh = H - cy - 16
     body += f'<rect x="{m}" y="{cy}" width="{W-2*m}" height="{chh}" rx="4" fill="{CARD}" stroke="{LINE}"/>'
-    body += f'<text x="{m+14}" y="{cy+22}" font-size="11" fill="{GREEN}">$ contributions / month</text>'
+    body += f'<text x="{m+14}" y="{cy+22}" font-size="11" fill="{LABEL}">$ contributions / month</text>'
     base, top = cy + chh - 30, cy + 56
     vals = [v for _, v in s["months"]]
     mx = max(vals) or 1
@@ -161,11 +161,11 @@ def dashboard(s, W=900, H=420):
         bh = max(3, (base - top) * v / mx)
         bx = m + 20 + i * slot + slot * 0.2
         hot = v == mx and v > 0
-        body += (f'<rect class="b" style="animation-delay:{i*0.07:.2f}s" x="{bx:.1f}" y="{base-bh:.1f}" width="{slot*0.6:.1f}" height="{bh:.1f}" rx="2" fill="{GREEN if hot else "#26a641"}"/>'
-                 f'<text x="{bx+slot*0.3:.1f}" y="{base-bh-6:.1f}" text-anchor="middle" font-size="10.5" font-weight="{700 if hot else 400}" fill="{GREEN if hot else DIM}">{v}</text>'
+        body += (f'<rect class="b" style="animation-delay:{i*0.07:.2f}s" x="{bx:.1f}" y="{base-bh:.1f}" width="{slot*0.6:.1f}" height="{bh:.1f}" rx="2" fill="{"#39d353" if hot else "#26a641"}"/>'
+                 f'<text x="{bx+slot*0.3:.1f}" y="{base-bh-6:.1f}" text-anchor="middle" font-size="10.5" font-weight="{700 if hot else 400}" fill="{TXT if hot else DIM}">{v}</text>'
                  f'<text x="{bx+slot*0.3:.1f}" y="{base+16}" text-anchor="middle" font-size="10.5" fill="{DIM}">{lab}</text>')
     css = ".b{transform-box:fill-box;transform-origin:50% 100%;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}"
-    return svg(W, H, window(W, H, "github ~ $ whoami", body, f"@{USER}"), "GitHub stats", css)
+    return svg(W, H, window(W, H, "Stats", body), "GitHub stats", css)
 
 
 # ---------------------------------------------------------------- heatmap
@@ -210,7 +210,7 @@ def heatmap(s, W=900):
     css = (".c{opacity:0;animation:sweep 10s ease-out infinite both}"
            "@keyframes sweep{0%{opacity:0;transform:translateX(-14px)}6%{opacity:1;transform:translateX(0)}88%{opacity:1}96%{opacity:0}100%{opacity:0}}"
            "@media (prefers-reduced-motion:reduce){.c{animation:none;opacity:1}}")
-    return svg(W, H, window(W, H, "github ~ $ contributions --last-year", body, f"@{USER}"), "Contribution heatmap", css)
+    return svg(W, H, window(W, H, "Contribution", body), "Contribution heatmap", css)
 
 
 def main():
