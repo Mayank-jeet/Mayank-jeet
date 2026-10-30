@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="900" height="34" viewBox="0 0 900 34" role="img"><title>Let's connect</title>
+<style>text{font-family:'JetBrains Mono','SF Mono','Cascadia Code','Fira Code',Consolas,'DejaVu Sans Mono',monospace}</style>
+<rect x="0.5" y="0.5" width="899" height="33" rx="6" fill="#0b130f" stroke="#1f3b2b"/><path d="M0.5 30.5V6.5A6 6 0 0 1 6.5 0.5H893.5A6 6 0 0 1 899.5 6.5V30.5Z" fill="#101c15"/><line x1="0.5" y1="30.5" x2="899.5" y2="30.5" stroke="#1f3b2b"/><circle cx="16" cy="15.5" r="4.5" fill="#1b5e32"/><circle cx="32" cy="15.5" r="4.5" fill="#2ea043"/><circle cx="48" cy="15.5" r="4.5" fill="#39d353"/><text x="66" y="19.5" font-size="12" fill="#7fa08d">~/connect $ ping --me</text>
+</svg>

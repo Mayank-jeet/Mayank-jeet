@@ -25,10 +25,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build metal banners and icons
-        run: python scripts/build_assets.py
-
-      - name: Generate activity graph
+      # Writes assets/dashboard.svg and assets/heatmap.svg. Exits non-zero if no
+      # data source works, so a broken run is red instead of silently stale.
+      - name: Generate dashboard and heatmap
         run: python scripts/activity_graph.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,11 +37,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets
+          git add assets/dashboard.svg assets/heatmap.svg
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "Update: generated profile assets"
+            git commit -m "Update dashboard and heatmap"
             git pull --rebase origin main
             git push
           fi

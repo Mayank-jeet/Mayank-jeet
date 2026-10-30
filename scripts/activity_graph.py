@@ -1,151 +1,226 @@
-"""Generate assets/activity-graph.svg: a clean black-card chart of the last 31 days
-of GitHub contributions (soft white bars, white trend line, pink data dots).
+"""Generate the two live SVGs for the profile README:
+  assets/dashboard.svg  terminal-style stats (streaks, totals, contributions per month)
+  assets/heatmap.svg    contribution heatmap whose columns sweep in from the left
 
-Role in the architecture: run by the Actions workflow every 6 hours; it imports the
-shared look from metal.py so the graph matches the hero, banners and icons.
-Standard library only.
+Role in the architecture: a GitHub Actions workflow runs this every 6 hours, commits
+the SVGs, and README.md embeds them as images. Standard library only.
 
-Env vars:
-  GH_TOKEN  token for the GitHub GraphQL API (Actions provides GITHUB_TOKEN)
-  GH_USER   GitHub username (defaults to Mayank-jeet)
-Run with --demo to render fake data without calling the API.
+Data sources, in order:
+  1. GitHub GraphQL API (GH_TOKEN; Actions provides GITHUB_TOKEN) - last 12 months
+  2. Public page https://github.com/users/<user>/contributions (no token needed)
+If both fail the script exits non-zero, so the workflow run goes red instead of
+silently leaving stale or placeholder images.
+
+Env: GH_TOKEN, GH_USER (default Mayank-jeet).   Flag: --demo renders fake data.
 """
+import html
 import json
 import os
 import random
+import re
 import sys
-import urllib.error
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
-import metal
+from theme import CARD, DIM, GREEN, LEVELS, LINE, TXT, stat_card, svg, window
 
 USER = os.environ.get("GH_USER", "Mayank-jeet")
-DAYS = 31
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "activity-graph.svg")
+ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets")
 
-QUERY = """
-query($login: String!, $from: DateTime!, $to: DateTime!) {
-  user(login: $login) {
-    contributionsCollection(from: $from, to: $to) {
-      contributionCalendar {
-        weeks { contributionDays { date contributionCount } }
-      }
-    }
-  }
-}
-"""
+QUERY = """query($login: String!) { user(login: $login) { contributionsCollection {
+  contributionCalendar { weeks { contributionDays { date contributionCount } } } } } }"""
+
+
+# ---------------------------------------------------------------- data
+def fetch_graphql():
+    req = urllib.request.Request(
+        "https://api.github.com/graphql",
+        data=json.dumps({"query": QUERY, "variables": {"login": USER}}).encode(),
+        headers={"Authorization": f"bearer {os.environ['GH_TOKEN']}", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = json.load(r)
+    if "errors" in data or not data.get("data", {}).get("user"):
+        raise RuntimeError(f"GraphQL error: {data}")
+    weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
+    return [d for w in weeks for d in w["contributionDays"]]
+
+
+def fetch_public_page():
+    req = urllib.request.Request(f"https://github.com/users/{USER}/contributions", headers={"User-Agent": "Mozilla/5.0 profile-graph"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        page = r.read().decode("utf-8", "replace")
+    tips = {}
+    for m in re.finditer(r'<tool-tip[^>]*\bfor="([^"]+)"[^>]*>([^<]*)</tool-tip>', page):
+        n = re.match(r"\s*(\d+)\s+contribution", html.unescape(m.group(2)))
+        tips[m.group(1)] = int(n.group(1)) if n else 0
+    days = []
+    for tag in re.findall(r"<td[^>]*data-date=[^>]*>", page):
+        d = re.search(r'data-date="([\d-]+)"', tag)
+        i = re.search(r'\bid="([^"]+)"', tag)
+        if d:
+            days.append({"date": d.group(1), "contributionCount": tips.get(i.group(1), 0) if i else 0})
+    if not days:
+        raise RuntimeError("could not parse public contributions page")
+    return days
 
 
 def fetch_days():
-    token = os.environ["GH_TOKEN"]
-    to = datetime.now(timezone.utc)
-    frm = to - timedelta(days=DAYS + 2)
-    payload = json.dumps({
-        "query": QUERY,
-        "variables": {
-            "login": USER,
-            "from": frm.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "to": to.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        },
-    }).encode()
-    req = urllib.request.Request(
-        "https://api.github.com/graphql",
-        data=payload,
-        headers={"Authorization": f"bearer {token}", "Content-Type": "application/json",
-                 "User-Agent": "activity-graph-script"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.load(resp)
-    except urllib.error.HTTPError as e:  # surface the API's own message in the Actions log
-        raise SystemExit(f"GitHub API HTTP {e.code}: {e.read().decode(errors='replace')}")
-    if "errors" in data or not data.get("data", {}).get("user"):
-        raise SystemExit(f"GraphQL error: {data}")
-    weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
-    days = [d for w in weeks for d in w["contributionDays"]]
-    days.sort(key=lambda d: d["date"])
-    return days[-DAYS:]
+    errs = []
+    for fn in (fetch_graphql, fetch_public_page):
+        try:
+            days = sorted(fn(), key=lambda d: d["date"])
+            today = datetime.now(timezone.utc).date().isoformat()
+            return [{"date": date.fromisoformat(d["date"]), "n": d["contributionCount"]} for d in days if d["date"] <= today]
+        except Exception as e:
+            errs.append(f"{fn.__name__}: {e}")
+            print("WARN", errs[-1], file=sys.stderr)
+    raise SystemExit("All data sources failed: " + " | ".join(errs))
 
 
 def demo_days():
-    base = datetime.now(timezone.utc).date()
-    return [
-        {"date": (base - timedelta(days=DAYS - 1 - i)).isoformat(), "contributionCount": random.choice([0, 0, 1, 2, 3, 5, 8])}
-        for i in range(DAYS)
+    end = datetime.now(timezone.utc).date()
+    return [{"date": end - timedelta(days=370 - i), "n": random.choice([0, 0, 1, 2, 3, 5, 8, 14, 30])} for i in range(371)]
+
+
+# ---------------------------------------------------------------- stats
+def fmt(d):
+    return f"{d:%b} {d.day}"
+
+
+def compute(days):
+    last = days[-371:]                       # what the heatmap draws (<= 53 weeks)
+    year = days[-365:]                       # what the numbers describe
+    total = sum(d["n"] for d in year)
+    active = [d for d in year if d["n"] > 0]
+    best = max(year, key=lambda d: d["n"])
+    # current streak: walk back from today; an empty *today* does not break it yet
+    i = len(year) - 1
+    if year[i]["n"] == 0:
+        i -= 1
+    cur_end = i
+    while i >= 0 and year[i]["n"] > 0:
+        i -= 1
+    cur = (cur_end - i, year[i + 1]["date"] if cur_end - i else None, year[cur_end]["date"] if cur_end - i else None)
+    # longest streak
+    lg, run, start = (0, None, None), 0, 0
+    for k, d in enumerate(year):
+        if d["n"] > 0:
+            if run == 0:
+                start = k
+            run += 1
+            if run > lg[0]:
+                lg = (run, year[start]["date"], d["date"])
+        else:
+            run = 0
+    # contributions per calendar month, last 12 months
+    today = year[-1]["date"]
+    months = []
+    y, m = today.year, today.month
+    for _ in range(12):
+        months.append((y, m))
+        m -= 1
+        if m == 0:
+            y, m = y - 1, 12
+    months.reverse()
+    per = {k: 0 for k in months}
+    for d in year:
+        k = (d["date"].year, d["date"].month)
+        if k in per:
+            per[k] += d["n"]
+    return dict(last=last, total=total, active=len(active), best=best, cur=cur, longest=lg,
+                avg=(total / len(active) if active else 0), months=[(datetime(y, m, 1).strftime("%b"), per[(y, m)]) for y, m in months],
+                span=len(year))
+
+
+# ---------------------------------------------------------------- dashboard
+def dashboard(s, W=900, H=420):
+    m, g = 16, 12
+    cw, ch = (W - 2 * m - 2 * g) / 3, 80
+    rng = lambda a, b: f"{fmt(a)} - {fmt(b)}" if a else "no active streak"
+    cards = [
+        ("current streak", str(s["cur"][0]), "days", rng(s["cur"][1], s["cur"][2])),
+        ("longest streak", str(s["longest"][0]), "days", rng(s["longest"][1], s["longest"][2])),
+        ("contributions", f"{s['total']:,}", "", "in the last year"),
+        ("active days", str(s["active"]), f"/ {s['span']}", f"{100 * s['active'] / s['span']:.0f}% of the year"),
+        ("best day", str(s["best"]["n"]), "", fmt(s["best"]["date"])),
+        ("avg / active day", f"{s['avg']:.1f}", "", "contributions"),
     ]
+    body = ""
+    for i, c in enumerate(cards):
+        body += stat_card(m + (i % 3) * (cw + g), 46 + (i // 3) * (ch + g), cw, ch, *c)
+    # monthly bar chart
+    cy = 46 + 2 * (ch + g)
+    chh = H - cy - 16
+    body += f'<rect x="{m}" y="{cy}" width="{W-2*m}" height="{chh}" rx="4" fill="{CARD}" stroke="{LINE}"/>'
+    body += f'<text x="{m+14}" y="{cy+22}" font-size="11" fill="{GREEN}">$ contributions / month</text>'
+    base, top = cy + chh - 30, cy + 56
+    vals = [v for _, v in s["months"]]
+    mx = max(vals) or 1
+    slot = (W - 2 * m - 40) / 12
+    for i, (lab, v) in enumerate(s["months"]):
+        bh = max(3, (base - top) * v / mx)
+        bx = m + 20 + i * slot + slot * 0.2
+        hot = v == mx and v > 0
+        body += (f'<rect class="b" style="animation-delay:{i*0.07:.2f}s" x="{bx:.1f}" y="{base-bh:.1f}" width="{slot*0.6:.1f}" height="{bh:.1f}" rx="2" fill="{GREEN if hot else "#26a641"}"/>'
+                 f'<text x="{bx+slot*0.3:.1f}" y="{base-bh-6:.1f}" text-anchor="middle" font-size="10.5" font-weight="{700 if hot else 400}" fill="{GREEN if hot else DIM}">{v}</text>'
+                 f'<text x="{bx+slot*0.3:.1f}" y="{base+16}" text-anchor="middle" font-size="10.5" fill="{DIM}">{lab}</text>')
+    css = ".b{transform-box:fill-box;transform-origin:50% 100%;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}"
+    return svg(W, H, window(W, H, "github ~ $ whoami", body, f"@{USER}"), "GitHub stats", css)
 
 
-def render(days):
-    W, H = 900, 360
-    L, R, T, B = 64, 34, 86, 58
-    pw, ph = W - L - R, H - T - B
-    counts = [d["contributionCount"] for d in days]
-    ymax = max(4, max(counts))
-    if ymax % 4:
-        ymax += 4 - ymax % 4
-    n = len(days)
-    step = pw / (n - 1)
-    total = sum(counts)
-
-    def x(i):
-        return L + step * i
-
-    def y(v):
-        return T + ph - ph * v / ymax
-
-    pts = [(x(i), y(c)) for i, c in enumerate(counts)]
-    line = " ".join(f"{px:.1f},{py:.1f}" for px, py in pts)
-    area = f"{L},{T + ph} " + line + f" {x(n - 1):.1f},{T + ph}"
-
-    grid = []
-    for k in range(5):
-        v = ymax * k / 4
-        gy = y(v)
-        grid.append(f'<line x1="{L}" y1="{gy:.1f}" x2="{W - R}" y2="{gy:.1f}" stroke="#8d96a3" stroke-opacity="0.22" stroke-dasharray="4 5"/>')
-        grid.append(f'<text x="{L - 12}" y="{gy + 4:.1f}" text-anchor="end" fill="#aab2be" font-size="11">{int(v)}</text>')
-
-    # metal bars: one per day with activity (skipped for zero so nothing renders at height 0)
-    bw = step * 0.5
-    bars = "".join(
-        f'<rect x="{px - bw / 2:.1f}" y="{py:.1f}" width="{bw:.1f}" height="{T + ph - py:.1f}" rx="2" fill="#ffffff" opacity="0.14"/>'
-        for (px, py), c in zip(pts, counts) if c > 0
-    )
-    xlabels = "".join(
-        f'<text x="{x(i):.1f}" y="{T + ph + 20}" text-anchor="middle" fill="#aab2be" font-size="10">{d["date"][8:10].lstrip("0") or "0"}</text>'
-        for i, d in enumerate(days)
-    )
-    # solid-colour line (a gradient on a flat line has a zero-height box and would vanish)
-    trend = f'<polyline points="{line}" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
-    orbs = "".join(
-        f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4" fill="{metal.PINK}" stroke="#000000" stroke-width="1.5"/>'
-        for px, py in pts
-    )
-    first = datetime.fromisoformat(days[0]["date"]).strftime("%b %d")
-    last = datetime.fromisoformat(days[-1]["date"]).strftime("%b %d")
-
-    body = (
-        metal.plate(W, H, 16)
-        + metal.badge(44, 40, 20, "commit")
-        + metal.embossed_text(78, 48, "Contribution Graph", 26, spacing=1)
-        + f'<text x="78" y="68" fill="#aab2be" font-size="12" font-family="Segoe UI, Helvetica, Arial, sans-serif">{first} - {last} · {total} contributions in the last {n} days</text>'
-        + "".join(grid)
-        + bars
-        + f'<polygon points="{area}" fill="url(#m-area)"/>'
-        + trend
-        + orbs
-        + f'<g font-family="Segoe UI, Helvetica, Arial, sans-serif">{xlabels}</g>'
-        + f'<text x="{W / 2}" y="{H - 14}" text-anchor="middle" fill="#8d96a3" font-size="11" font-family="Segoe UI, Helvetica, Arial, sans-serif">Day of month</text>'
-    )
-    return metal.svg(W, H, body, "Contribution graph")
+# ---------------------------------------------------------------- heatmap
+def heatmap(s, W=900):
+    days = s["last"]
+    first = days[0]["date"]
+    start = first - timedelta(days=(first.weekday() + 1) % 7)       # Sunday-first columns like GitHub
+    ncols = (days[-1]["date"] - start).days // 7 + 1
+    padx, lab = 24, 30
+    pitch = (W - 2 * padx - lab) / ncols
+    cell = pitch - 3
+    gy = 128
+    nz = sorted(d["n"] for d in days if d["n"] > 0)
+    q = [nz[int(len(nz) * f)] for f in (0.25, 0.5, 0.75)] if nz else [1, 2, 3]
+    level = lambda c: 0 if c == 0 else 1 if c <= q[0] else 2 if c <= q[1] else 3 if c <= q[2] else 4
+    cols = {}
+    for d in days:
+        idx = (d["date"] - start).days
+        cols.setdefault(idx // 7, []).append((idx % 7, d))
+    body = (f'<text x="{padx}" y="76" font-size="34" font-weight="700" fill="{TXT}">{s["total"]:,}</text>'
+            f'<text x="{padx}" y="94" font-size="10" fill="{DIM}" letter-spacing="1.6">CONTRIBUTIONS IN THE LAST YEAR</text>')
+    # month labels
+    lastx, prev = -99, None
+    for c in range(ncols):
+        d0 = start + timedelta(days=7 * c)
+        if d0.month != prev and c - lastx >= 3 and (d0 + timedelta(days=6)) >= days[0]["date"]:
+            body += f'<text x="{padx+lab+c*pitch:.1f}" y="{gy-8}" font-size="10" fill="{DIM}">{d0:%b}</text>'
+            lastx = c
+        prev = d0.month
+    for r, name in ((1, "Mon"), (3, "Wed"), (5, "Fri")):
+        body += f'<text x="{padx}" y="{gy + r*pitch + cell*0.8:.1f}" font-size="10" fill="{DIM}">{name}</text>'
+    for c in sorted(cols):
+        rects = "".join(f'<rect x="{padx+lab+c*pitch:.1f}" y="{gy+r*pitch:.1f}" width="{cell:.1f}" height="{cell:.1f}" rx="2.5" fill="{LEVELS[level(d["n"])]}"/>'
+                        for r, d in cols[c])
+        body += f'<g class="c" style="animation-delay:{c*0.045:.3f}s">{rects}</g>'
+    ly = gy + 7 * pitch + 22
+    lx = W - padx - 5 * 16 - 70
+    body += f'<text x="{lx}" y="{ly+9}" font-size="10" fill="{DIM}" text-anchor="end">Less</text>'
+    body += "".join(f'<rect x="{lx+8+i*16}" y="{ly}" width="12" height="12" rx="2.5" fill="{LEVELS[i]}"/>' for i in range(5))
+    body += f'<text x="{lx+8+5*16+4}" y="{ly+9}" font-size="10" fill="{DIM}">More</text>'
+    H = int(ly + 26)
+    css = (".c{opacity:0;animation:sweep 10s ease-out infinite both}"
+           "@keyframes sweep{0%{opacity:0;transform:translateX(-14px)}6%{opacity:1;transform:translateX(0)}88%{opacity:1}96%{opacity:0}100%{opacity:0}}"
+           "@media (prefers-reduced-motion:reduce){.c{animation:none;opacity:1}}")
+    return svg(W, H, window(W, H, "github ~ $ contributions --last-year", body, f"@{USER}"), "Contribution heatmap", css)
 
 
 def main():
     days = demo_days() if "--demo" in sys.argv else fetch_days()
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as f:
-        f.write(render(days))
-    print(f"Wrote {os.path.normpath(OUT)} ({len(days)} days)")
+    s = compute(days)
+    os.makedirs(ASSETS, exist_ok=True)
+    for name, content in (("dashboard.svg", dashboard(s)), ("heatmap.svg", heatmap(s))):
+        with open(os.path.join(ASSETS, name), "w", encoding="utf-8") as f:
+            f.write(content)
+    print(f"Wrote dashboard.svg + heatmap.svg ({len(days)} days, {s['total']} contributions, streak {s['cur'][0]})")
 
 
 if __name__ == "__main__":
