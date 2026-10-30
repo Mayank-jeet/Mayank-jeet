@@ -1,5 +1,5 @@
-"""Generate assets/activity-graph.svg: a dark-and-light-metal chart of the last 31 days
-of GitHub contributions (metal bars, chrome trend line, glossy pink data orbs).
+"""Generate assets/activity-graph.svg: a clean black-card chart of the last 31 days
+of GitHub contributions (soft white bars, white trend line, pink data dots).
 
 Role in the architecture: run by the Actions workflow every 6 hours; it imports the
 shared look from metal.py so the graph matches the hero, banners and icons.
@@ -108,7 +108,7 @@ def render(days):
     # metal bars: one per day with activity (skipped for zero so nothing renders at height 0)
     bw = step * 0.5
     bars = "".join(
-        f'<rect x="{px - bw / 2:.1f}" y="{py:.1f}" width="{bw:.1f}" height="{T + ph - py:.1f}" rx="2" fill="url(#m-wall)" opacity="0.9"/>'
+        f'<rect x="{px - bw / 2:.1f}" y="{py:.1f}" width="{bw:.1f}" height="{T + ph - py:.1f}" rx="2" fill="#ffffff" opacity="0.14"/>'
         for (px, py), c in zip(pts, counts) if c > 0
     )
     xlabels = "".join(
@@ -116,10 +116,9 @@ def render(days):
         for i, d in enumerate(days)
     )
     # solid-colour line (a gradient on a flat line has a zero-height box and would vanish)
-    trend = (f'<polyline points="{line}" fill="none" stroke="#000" stroke-opacity="0.5" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 3)"/>'
-             f'<polyline points="{line}" fill="none" stroke="#e6ebf2" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>')
+    trend = f'<polyline points="{line}" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'
     orbs = "".join(
-        f'<circle cx="{px:.1f}" cy="{py:.1f}" r="5.5" fill="url(#m-orb-pink)" filter="url(#m-shadow)"/>'
+        f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4" fill="{metal.PINK}" stroke="#000000" stroke-width="1.5"/>'
         for px, py in pts
     )
     first = datetime.fromisoformat(days[0]["date"]).strftime("%b %d")

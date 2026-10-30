@@ -51,14 +51,12 @@ def icon(glyph):
 
 
 def hero():
-    w, h = 900, 200
+    w, h = 900, 190
     body = (
         metal.plate(w, h, 18)
-        + '<circle cx="95" cy="100" r="48" fill="url(#m-orb-pink)" filter="url(#m-shadow)"/>'
-        + '<ellipse cx="82" cy="78" rx="26" ry="14" fill="url(#m-gloss)"/>'
-        + metal.embossed_text(170, 98, "Mayank Jeet", 56, spacing=1)
-        + metal.embossed_text(172, 134, "AI / ML ENGINEER  ·  DATA SCIENTIST", 20, spacing=3)
-        + '<text x="172" y="164" font-family="\'Segoe UI\', Helvetica, Arial, sans-serif" font-size="15" fill="#aab2be">'
+        + metal.embossed_text(48, 86, "Mayank Jeet", 56, spacing=1)
+        + metal.embossed_text(50, 124, "AI / ML ENGINEER  ·  DATA SCIENTIST", 20, spacing=3)
+        + '<text x="50" y="154" font-family="\'Segoe UI\', Helvetica, Arial, sans-serif" font-size="15" fill="#aab2be">'
         + "B.Tech Civil Engineering @ IIT Bhubaneswar (2028)  ·  applied ML and agentic AI, end to end</text>"
     )
     return metal.svg(w, h, body, "Mayank Jeet")
