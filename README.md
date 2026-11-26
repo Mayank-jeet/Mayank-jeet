@@ -37,13 +37,17 @@
 ## Projects
 
 <p align="center">
-  <a href="https://opspilot-mocha-xi.vercel.app"><img src="assets/cards/opspilot.svg" width="32%" alt="OpsPilot - live demo"></a>
-  <a href="https://blog-rag-app.vercel.app"><img src="assets/cards/bloggen.svg" width="32%" alt="BlogGEN - live demo"></a>
-  <a href="https://anomaly-inspect.vercel.app"><img src="assets/cards/anomaly-inspect.svg" width="32%" alt="Anomaly-Inspect - live demo"></a>
+  <a href="https://opspilot-mocha-xi.vercel.app"><img src="assets/cards/opspilot.svg" width="49%" alt="OpsPilot - live demo"></a>
+  <a href="https://blog-rag-app.vercel.app"><img src="assets/cards/bloggen.svg" width="49%" alt="BlogGEN - live demo"></a>
 </p>
 
 <p align="center">
-  <sub>Source code: <a href="https://github.com/Mayank-jeet/opspilot">OpsPilot</a> · <a href="https://github.com/Mayank-jeet/blog-rag-app">BlogGEN</a> · <a href="https://github.com/Mayank-jeet/anomaly-inspect">Anomaly-Inspect</a></sub>
+  <a href="https://anomaly-inspect.vercel.app"><img src="assets/cards/anomaly-inspect.svg" width="49%" alt="Anomaly-Inspect - live demo"></a>
+  <a href="https://struct-iq-concrete.vercel.app"><img src="assets/cards/structiq.svg" width="49%" alt="StructIQ - live demo"></a>
+</p>
+
+<p align="center">
+  <sub>Source code: <a href="https://github.com/Mayank-jeet/opspilot">OpsPilot</a> · <a href="https://github.com/Mayank-jeet/blog-rag-app">BlogGEN</a> · <a href="https://github.com/Mayank-jeet/anomaly-inspect">Anomaly-Inspect</a> · <a href="https://github.com/Mayank-jeet/StructIQ">StructIQ</a></sub>
 </p>
 
 ## Problem solving

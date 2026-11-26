@@ -23,6 +23,8 @@ PROJECTS = [
      ["LangGraph", "FastAPI", "React", "Tavily", "Gemini"]),
     ("anomaly-inspect", "Anomaly-Inspect", "Unsupervised defect detection on MVTec AD. PatchCore reaches 0.977 AUROC at ~97 ms on CPU.",
      ["PyTorch", "FAISS", "ONNX Runtime", "FastAPI", "React"]),
+    ("structiq", "StructIQ", "Concrete strength predictor: LightGBM, 6.53 MPa RMSE, 0.87 R2 on held-out recipes, with SQL and A/B.",
+     ["LightGBM", "SHAP", "SQL", "FastAPI", "React"]),
 ]
 
 
