@@ -64,7 +64,7 @@ def about(w=900):
     rows = [
         ("cap", "B.Tech student at **IIT Bhubaneswar**, spending most of my time building software."),
         ("chip", "I take ideas from model to API to UI to live deployment, using LangGraph, FastAPI, React and PyTorch."),
-        ("nodes", "**600+ DSA problems** solved in C++ on LeetCode and CodeForces."),
+        ("nodes", "**600+ DSA problems** solved in C++ on LeetCode (**Knight** rank) and CodeForces."),
         ("trophy", "Core Head of Sports Fest at IIT Bhubaneswar, leading a team of organizers."),
         ("briefcase", "**Open to** AI Engineer, ML Engineer, Data Scientist and SDE (ML) roles."),
     ]
@@ -77,10 +77,10 @@ def about(w=900):
 
 
 def problem(w=900):
-    """Three tiles. Label sits above the value with clear space, so they never overlap."""
+    """Four tiles. Label sits above the value with clear space, so they never overlap."""
     g, h = 12, 70
-    cw = (w - 1 - 2 * g) / 3
-    tiles = [("leetcode", "m_j_bhardwaj"), ("codeforces", "Mayank_Jeet"), ("solved", "600+")]
+    cw = (w - 1 - 3 * g) / 4
+    tiles = [("leetcode", "m_j_bhardwaj"), ("lc rank", "Knight"), ("codeforces", "Mayank_Jeet"), ("solved", "600+")]
     body = "".join(stat_card(i * (cw + g), 0, cw, h, lab, val) for i, (lab, val) in enumerate(tiles))
     return svg(w, h + 1, body, "Problem solving")
 

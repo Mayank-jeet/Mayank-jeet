@@ -49,7 +49,7 @@
 ## Problem solving
 
 <p align="center">
-  <img src="assets/problem.svg" width="100%" alt="Problem solving: LeetCode m_j_bhardwaj, CodeForces Mayank_Jeet, 600+ solved">
+  <img src="assets/problem.svg" width="100%" alt="Problem solving: LeetCode m_j_bhardwaj (Knight rank), CodeForces Mayank_Jeet, 600+ solved">
 </p>
 
 <p align="center">
